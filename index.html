@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SnapTimer Broadcast Studio - Modo Overtime</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    .st-outer-wrapper {
+      all: initial;
+      display: block;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #dbe4ee;
+      color: #0f172a;
+      padding: 12px;
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    .st-outer-wrapper * {
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .st-container {
+      max-width: 490px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .st-card {
+      background: #ffffff;
+      border: 1px solid #94a3b8;
+      border-radius: 6px;
+      padding: 12px 14px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      font-size: 13px;
+    }
+
+    .st-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+
+    .st-card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .st-status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background-color: #10b981;
+      box-shadow: 0 0 6px #10b981;
+      transition: background-color 0.3s ease;
+    }
+    .st-status-dot.overtime {
+      background-color: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+      animation: blinkDot 0.8s infinite alternate;
+    }
+    @keyframes blinkDot {
+      from { opacity: 1; }
+      to { opacity: 0.3; }
+    }
+
+    .st-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .st-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .st-field.full {
+      grid-column: span 2;
+    }
+
+    .st-field label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .st-field select,
+    .st-field input[type="text"] {
+      padding: 5px 8px;
+      border: 1px solid #64748b;
+      border-radius: 4px;
+      background: #f8fafc;
+      font-size: 12px;
+      color: #0f172a;
+      outline: none;
+    }
+
+    .st-check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: #f1f5f9;
+      border-radius: 4px;
+      border: 1px dashed #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      color: #1e293b;
+      cursor: pointer;
+    }
+
+    .st-check-row input[type="checkbox"] {
+      cursor: pointer;
+      accent-color: #dc2626;
+      width: 15px;
+      height: 15px;
+    }
+
+    .st-summary-badge {
+      margin-top: 8px;
+      padding: 7px 10px;
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #1e3a8a;
+      line-height: 1.4;
+    }
+
+    .st-summary-badge.alert-overtime {
+      background: #fee2e2;
+      border-left-color: #dc2626;
+      color: #991b1b;
+      font-weight: 600;
+    }
+
+    .st-btn-toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .st-btn-quick-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .st-btn {
+      padding: 7px 10px;
+      border-radius: 4px;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: #ffffff;
+      transition: background 0.15s ease, transform 0.05s ease;
+      user-select: none;
+    }
+    .st-btn:active {
+      transform: scale(0.98);
+    }
+
+    .st-btn-start { background-color: #059669; }
+    .st-btn-start:hover { background-color: #047857; }
+    .st-btn-pause { background-color: #d97706; }
+    .st-btn-pause:hover { background-color: #b45309; }
+    .st-btn-reset { background-color: #475569; }
+    .st-btn-reset:hover { background-color: #334155; }
+    .st-btn-next  { background-color: #2563eb; }
+    .st-btn-next:hover { background-color: #1d4ed8; }
+    .st-btn-adjust { background-color: #0284c7; font-size: 11px; }
+    .st-btn-adjust:hover { background-color: #0369a1; }
+
+    .snap-window {
+      background: #ece9d8;
+      border: 1px solid #7f9db9;
+      box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.35);
+      border-radius: 3px;
+      overflow: hidden;
+      transition: border-color 0.2s ease;
+    }
+    .snap-window.in-overtime {
+      border: 2px solid #dc2626;
+      box-shadow: 0 0 12px rgba(220, 38, 38, 0.5);
+    }
+
+    .snap-titlebar {
+      background: linear-gradient(180deg, #ffffff 0%, #d8d4c6 100%);
+      border-bottom: 1px solid #a0a0a0;
+      padding: 3px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+    .snap-window.in-overtime .snap-titlebar {
+      background: linear-gradient(180deg, #fee2e2 0%, #fca5a5 100%);
+    }
+
+    .snap-title-text {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: #111827;
+      font-weight: 600;
+    }
+
+    .snap-overtime-tag {
+      display: none;
+      background: #dc2626;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 2px;
+      letter-spacing: 0.5px;
+      animation: flashTag 1s infinite alternate;
+    }
+    @keyframes flashTag {
+      from { opacity: 1; }
+      to { opacity: 0.4; }
+    }
+
+    .snap-sys-btns {
+      display: flex;
+      align-items: center;
+      gap: 1px;
+    }
+
+    .snap-sys-btn {
+      width: 17px;
+      height: 15px;
+      font-size: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e9e5d4;
+      border: 1px solid #8e8f8a;
+      border-radius: 2px;
+      color: #222;
+      cursor: pointer;
+    }
+    .snap-sys-btn:hover { background: #d0cbb8; }
+    .snap-sys-btn.close:hover { background: #ef4444; color: #fff; border-color: #b91c1c; }
+
+    .snap-menu {
+      background: #fbfbfb;
+      border-bottom: 1px solid #d4d4d4;
+      padding: 2px 8px;
+      display: flex;
+      gap: 12px;
+      font-size: 11px;
+      color: #374151;
+      user-select: none;
+    }
+
+    .snap-controls-bar {
+      background: #f1ede1;
+      border-bottom: 1px solid #bfbaaa;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    .snap-minutes-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 500;
+    }
+
+    .snap-input-box {
+      width: 42px;
+      height: 20px;
+      background: #ffffff;
+      border: 1px solid #7f9db9;
+      text-align: center;
+      font-family: monospace;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .snap-action-btns {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .snap-round-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid #8e8f8a;
+      background: #faf8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      cursor: pointer;
+      color: #1e293b;
+      transition: background 0.1s ease;
+    }
+    .snap-round-btn:hover { background: #ded8c4; }
+
+    .snap-display {
+      font-family: 'Roboto Mono', 'Courier New', Courier, monospace;
+      font-weight: 700;
+      font-size: 58px;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      text-align: center;
+      padding: 10px 4px;
+      margin: 4px;
+      border: 3px solid #000000;
+      user-select: none;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* Cores fiéis da imagem de estúdio */
+    .display-yellow {
+      background-color: #ffff00;
+      color: #000000;
+    }
+
+    .display-red {
+      background-color: #ff0000;
+      color: #000000;
+    }
+
+    /* Estado de Ultrapassagem / Overtime nos Displays */
+    .snap-display.is-negative {
+      animation: pulseOvertime 1.2s infinite alternate;
+    }
+    @keyframes pulseOvertime {
+      0% { filter: brightness(1); }
+      100% { filter: brightness(0.85) contrast(1.15); }
+    }
+
+    .st-stage-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 10px 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      font-size: 12px;
+    }
+
+    .st-stage-header {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .st-stage-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .st-stage-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 8px;
+      border-radius: 4px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 11px;
+      transition: all 0.2s ease;
+    }
+
+    .st-stage-row.active {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      font-weight: 700;
+      color: #78350f;
+    }
+
+    .st-stage-row.completed {
+      background: #f1f5f9;
+      color: #64748b;
+      text-decoration: line-through;
+    }
+
+    .st-stage-row.overtime {
+      background: #fee2e2;
+      border-color: #dc2626;
+      font-weight: 700;
+      color: #991b1b;
+      text-decoration: none;
+    }
+
+    @media (max-width: 480px) {
+      .snap-display {
+        font-size: 42px;
+        letter-spacing: -1px;
+      }
+      .st-btn-quick-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      .st-btn-quick-row .st-btn-next {
+        grid-column: span 2;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="st-outer-wrapper">
+  <div class="st-container">
+
+    <!-- Card de Configuração e Controle -->
+    <div class="st-card">
+      <div class="st-card-header">
+        <div class="st-card-title">
+          <span class="st-status-dot" id="mainStatusDot"></span>
+          Painel de Parâmetros e Distribuição
+        </div>
+        <button type="button" id="btnToggleCfg" style="background:none;border:none;color:#2563eb;font-size:11px;cursor:pointer;font-weight:600;">Ocultar Opções</button>
+      </div>
+
+      <div id="cfgPanel" class="st-grid-2">
+        <div class="st-field">
+          <label for="selBase">Tempo Base da Aula:</label>
+          <select id="selBase">
+            <option value="60" selected>60 minutos</option>
+            <option value="45">45 minutos</option>
+          </select>
+        </div>
+
+        <div class="st-field">
+          <label for="selIntro">Introdução (não contar / subtrair):</label>
+          <select id="selIntro">
+            <option value="5" selected>5 minutos</option>
+            <option value="4">4 minutos</option>
+            <option value="0">0 minutos (contar cheia)</option>
+          </select>
+        </div>
+
+        <div class="st-field">
+          <label for="selDev">Desenvolvimento:</label>
+          <select id="selDev">
+            <option value="33" selected>33 minutos</option>
+            <option value="30">30 minutos</option>
+          </select>
+        </div>
+
+        <div class="st-field">
+          <label for="selSoc">Socialização:</label>
+          <select id="selSoc">
+            <option value="5" selected>5 minutos</option>
+            <option value="4">4 minutos</option>
+          </select>
+        </div>
+
+        <div class="st-field full">
+          <label for="selEnem">Terá Minuto ENEM (3 min)?</label>
+          <select id="selEnem">
+            <option value="sim" selected>Sim (3 minutos)</option>
+            <option value="nao">Não (0 minutos)</option>
+          </select>
+        </div>
+
+        <!-- Opções Específicas de Ultrapassagem / Overtime -->
+        <div class="st-field full">
+          <label class="st-check-row">
+            <input type="checkbox" id="chkAllowOvertime" checked>
+            <span>Permitir tempo ultrapassado (contagem negativa de estouro)</span>
+          </label>
+        </div>
+
+        <div class="st-field full">
+          <label class="st-check-row">
+            <input type="checkbox" id="chkAutoAdvance" checked>
+            <span>Avançar fase automaticamente ao zerar (se desmarcado, fica negativo na fase)</span>
+          </label>
+        </div>
+
+        <div class="st-field full">
+          <label class="st-check-row">
+            <input type="checkbox" id="chkAudioAlert" checked>
+            <span>Emitir sinal sonoro (chime / bipe) nas transições e no zero</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="summaryBadge" class="st-summary-badge">
+        Carregando parâmetros de aula...
+      </div>
+
+      <!-- Barra de Ações Principais -->
+      <div class="st-btn-toolbar">
+        <button type="button" id="btnPlayMaster" class="st-btn st-btn-start">
+          <span id="btnPlayText">Iniciar Contagem</span>
+        </button>
+        <button type="button" id="btnResetMaster" class="st-btn st-btn-reset">
+          Reiniciar Sessão
+        </button>
+      </div>
+
+      <!-- Controles Rápidos em Tempo Real -->
+      <div class="st-btn-quick-row">
+        <button type="button" id="btnAddMin" class="st-btn st-btn-adjust" title="Adiciona 1 minuto ao tempo">+1 Minuto</button>
+        <button type="button" id="btnSubMin" class="st-btn st-btn-adjust" title="Remove 1 minuto do tempo">-1 Minuto</button>
+        <button type="button" id="btnNextPhase" class="st-btn st-btn-next" title="Pula para a próxima fase imediatamente">Avançar Fase ▶</button>
+      </div>
+    </div>
+
+    <div class="snap-window" id="winPhase">
+      <div class="snap-titlebar">
+        <div class="snap-title-text">
+          <span>⏱️</span>
+          <span>SnapTimer - <strong id="lblPhaseTitle">Desenvolvimento</strong></span>
+          <span class="snap-overtime-tag" id="tagOvertimePhase">ESTOURO</span>
+        </div>
+        <div class="snap-sys-btns">
+          <button type="button" class="snap-sys-btn">_</button>
+          <button type="button" class="snap-sys-btn">□</button>
+          <button type="button" class="snap-sys-btn close">✕</button>
+        </div>
+      </div>
+
+      <div class="snap-menu">
+        <span>File</span>
+        <span>Edit</span>
+        <span>Help</span>
+      </div>
+
+      <div class="snap-controls-bar">
+        <div class="snap-minutes-group">
+          <span>Minutes:</span>
+          <div class="snap-input-box" id="lblMinPhase">33</div>
+        </div>
+        <div class="snap-action-btns">
+          <button type="button" class="snap-round-btn" id="btnMiniPlay1" title="Iniciar / Pausar">▶</button>
+          <button type="button" class="snap-round-btn" id="btnMiniReset1" title="Parar e Reiniciar">■</button>
+        </div>
+      </div>
+
+      <!-- RELÓGIO SUPERIOR: AMARELO COM NÚMEROS PRETOS -->
+      <div id="dispPhase" class="snap-display display-yellow">
+        00:33:00
+      </div>
+    </div>
+
+    <div class="snap-window" id="winTotal">
+      <div class="snap-titlebar">
+        <div class="snap-title-text">
+          <span>⏱️</span>
+          <span>SnapTimer - <strong id="lblTotalStatus">Tempo Total Líquido</strong></span>
+          <span class="snap-overtime-tag" id="tagOvertimeTotal">AULA ESTOURADA</span>
+        </div>
+        <div class="snap-sys-btns">
+          <button type="button" class="snap-sys-btn">_</button>
+          <button type="button" class="snap-sys-btn">□</button>
+          <button type="button" class="snap-sys-btn close">✕</button>
+        </div>
+      </div>
+
+      <div class="snap-menu">
+        <span>File</span>
+        <span>Edit</span>
+        <span>Help</span>
+      </div>
+
+      <div class="snap-controls-bar">
+        <div class="snap-minutes-group">
+          <span>Minutes:</span>
+          <div class="snap-input-box" id="lblMinTotal">55</div>
+        </div>
+        <div class="snap-action-btns">
+          <button type="button" class="snap-round-btn" id="btnMiniPlay2" title="Iniciar / Pausar">▶</button>
+          <button type="button" class="snap-round-btn" id="btnMiniReset2" title="Parar e Reiniciar">■</button>
+        </div>
+      </div>
+
+      <!-- RELÓGIO INFERIOR: VERMELHO COM NÚMEROS PRETOS -->
+      <div id="dispTotal" class="snap-display display-red">
+        00:55:00
+      </div>
+    </div>
+
+    <div class="st-stage-card">
+      <div class="st-stage-header">
+        <span>Fases Programadas da Aula</span>
+        <span id="lblProgress">Etapa 1 de 4</span>
+      </div>
+      <ul id="stagesList" class="st-stage-list"></ul>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (function () {
+    // Estado da Aplicação
+    let running = false;
+    let timerId = null;
+    let totalTargetSec = 0;       // Duração planejada da aula líquida em segundos
+    let elapsedSec = 0;           // Segundos decorridos totais da sessão
+    let lastTickTime = null;      // Para cálculo preciso de delta
+    let stages = [];              // Array de fases { name, durationSec }
+    let currentStageIndex = 0;    // Índice da fase ativa
+    let currentStageElapsedSec = 0;// Segundos decorridos dentro da fase ativa
+
+    // Contexto de Áudio sintetizado via Web Audio API (sem dependência de links externos)
+    let audioCtx = null;
+    function playBeep(freq = 880, type = 'sine', duration = 0.25) {
+      if (!chkAudioAlert.checked) return;
+      try {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) audioCtx = new AudioContextClass();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        if (!audioCtx) return;
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        console.warn("Áudio não disponível:", e);
+      }
+    }
+
+    // Elementos DOM
+    const selBase = document.getElementById("selBase");
+    const selIntro = document.getElementById("selIntro");
+    const selDev = document.getElementById("selDev");
+    const selSoc = document.getElementById("selSoc");
+    const selEnem = document.getElementById("selEnem");
+    const chkAllowOvertime = document.getElementById("chkAllowOvertime");
+    const chkAutoAdvance = document.getElementById("chkAutoAdvance");
+    const chkAudioAlert = document.getElementById("chkAudioAlert");
+    const summaryBadge = document.getElementById("summaryBadge");
+    const mainStatusDot = document.getElementById("mainStatusDot");
+
+    const btnPlayMaster = document.getElementById("btnPlayMaster");
+    const btnPlayText = document.getElementById("btnPlayText");
+    const btnResetMaster = document.getElementById("btnResetMaster");
+    const btnNextPhase = document.getElementById("btnNextPhase");
+    const btnAddMin = document.getElementById("btnAddMin");
+    const btnSubMin = document.getElementById("btnSubMin");
+
+    const btnMiniPlay1 = document.getElementById("btnMiniPlay1");
+    const btnMiniReset1 = document.getElementById("btnMiniReset1");
+    const btnMiniPlay2 = document.getElementById("btnMiniPlay2");
+    const btnMiniReset2 = document.getElementById("btnMiniReset2");
+
+    const btnToggleCfg = document.getElementById("btnToggleCfg");
+    const cfgPanel = document.getElementById("cfgPanel");
+
+    const winPhase = document.getElementById("winPhase");
+    const winTotal = document.getElementById("winTotal");
+    const dispPhase = document.getElementById("dispPhase");
+    const dispTotal = document.getElementById("dispTotal");
+    const lblPhaseTitle = document.getElementById("lblPhaseTitle");
+    const lblTotalStatus = document.getElementById("lblTotalStatus");
+    const lblMinPhase = document.getElementById("lblMinPhase");
+    const lblMinTotal = document.getElementById("lblMinTotal");
+    const lblProgress = document.getElementById("lblProgress");
+    const stagesList = document.getElementById("stagesList");
+    const tagOvertimePhase = document.getElementById("tagOvertimePhase");
+    const tagOvertimeTotal = document.getElementById("tagOvertimeTotal");
+
+    function formatTimeWithSign(seconds) {
+      const isNeg = seconds < 0;
+      const total = Math.abs(Math.round(seconds));
+      const h = Math.floor(total / 3600);
+      const m = Math.floor((total % 3600) / 60);
+      const s = total % 60;
+      const sign = isNeg ? "-" : "";
+      return `${sign}${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function formatMinutesOnly(seconds) {
+      const isNeg = seconds < 0;
+      const m = Math.ceil(Math.abs(seconds) / 60);
+      return `${isNeg ? '-' : ''}${m}`;
+    }
+
+    function computeSchedule(keepElapsed = false) {
+      const baseMin = parseInt(selBase.value, 10);
+      const introMin = parseInt(selIntro.value, 10);
+      const devMin = parseInt(selDev.value, 10);
+      const orientMin = 2; // Fixo em 2 min
+      const socMin = parseInt(selSoc.value, 10);
+      const hasEnem = selEnem.value === "sim";
+      const enemMin = hasEnem ? 3 : 0;
+
+      // Tempo Líquido descontada a introdução
+      const netTotalMin = Math.max(0, baseMin - introMin);
+      totalTargetSec = netTotalMin * 60;
+
+      stages = [
+        { name: "Desenvolvimento", durationSec: devMin * 60 },
+        { name: "Orientação", durationSec: orientMin * 60 },
+        { name: "Socialização", durationSec: socMin * 60 }
+      ];
+
+      if (hasEnem) {
+        stages.push({ name: "Minuto ENEM", durationSec: enemMin * 60 });
+      }
+
+      // Conclusão absorve o restante do líquido planejado
+      const sumStagesSec = stages.reduce((acc, st) => acc + st.durationSec, 0);
+      const conclusionSec = Math.max(0, totalTargetSec - sumStagesSec);
+      stages.push({ name: "Conclusão", durationSec: conclusionSec });
+
+      if (!keepElapsed) {
+        elapsedSec = 0;
+        currentStageIndex = 0;
+        currentStageElapsedSec = 0;
+      }
+
+      const conclusaoFormat = (conclusionSec / 60).toFixed(1).replace('.0', '');
+      summaryBadge.innerHTML = `
+        <strong>Base:</strong> ${baseMin} min | 
+        <strong>Intro Descontada:</strong> ${introMin} min | 
+        <strong>Tempo Líquido:</strong> ${netTotalMin} min | 
+        <strong>Conclusão Restante:</strong> ${conclusaoFormat} min
+      `;
+      summaryBadge.className = "st-summary-badge";
+
+      updateDisplays();
+    }
+
+    function updateDisplays() {
+      // 1. Cronômetro B (Tempo Total Líquido)
+      const remainingTotalSec = totalTargetSec - elapsedSec;
+      const isTotalOvertime = remainingTotalSec < 0;
+
+      dispTotal.textContent = formatTimeWithSign(remainingTotalSec);
+      lblMinTotal.textContent = formatMinutesOnly(remainingTotalSec);
+
+      if (isTotalOvertime) {
+        winTotal.classList.add("in-overtime");
+        dispTotal.classList.add("is-negative");
+        tagOvertimeTotal.style.display = "inline-block";
+        lblTotalStatus.textContent = "Tempo Líquido Estourado";
+        mainStatusDot.className = "st-status-dot overtime";
+      } else {
+        winTotal.classList.remove("in-overtime");
+        dispTotal.classList.remove("is-negative");
+        tagOvertimeTotal.style.display = "none";
+        lblTotalStatus.textContent = "Tempo Total Líquido";
+        mainStatusDot.className = "st-status-dot";
+      }
+
+      // 2. Cronômetro A (Fase Atual)
+      const stage = stages[currentStageIndex];
+      if (stage) {
+        const remainingStageSec = stage.durationSec - currentStageElapsedSec;
+        const isStageOvertime = remainingStageSec < 0;
+
+        dispPhase.textContent = formatTimeWithSign(remainingStageSec);
+        lblPhaseTitle.textContent = stage.name;
+        lblMinPhase.textContent = formatMinutesOnly(remainingStageSec);
+
+        if (isStageOvertime) {
+          winPhase.classList.add("in-overtime");
+          dispPhase.classList.add("is-negative");
+          tagOvertimePhase.style.display = "inline-block";
+        } else {
+          winPhase.classList.remove("in-overtime");
+          dispPhase.classList.remove("is-negative");
+          tagOvertimePhase.style.display = "none";
+        }
+      } else {
+        // Todas as fases concluídas
+        dispPhase.textContent = "00:00:00";
+        lblPhaseTitle.textContent = "Sessão Concluída";
+        lblMinPhase.textContent = "0";
+        winPhase.classList.remove("in-overtime");
+        dispPhase.classList.remove("is-negative");
+        tagOvertimePhase.style.display = "none";
+      }
+
+      // 3. Atualizar Lista de Etapas
+      renderStages();
+    }
+
+    function renderStages() {
+      stagesList.innerHTML = stages.map((st, i) => {
+        let statusClass = "";
+        let prefix = `${i + 1}. `;
+
+        if (i < currentStageIndex) {
+          statusClass = "completed";
+          prefix += "✓ ";
+        } else if (i === currentStageIndex) {
+          const isOver = (st.durationSec - currentStageElapsedSec) < 0;
+          statusClass = isOver ? "active overtime" : "active";
+          prefix += "▶ ";
+        }
+
+        const mins = (st.durationSec / 60).toFixed(1).replace('.0', '');
+        return `
+          <li class="st-stage-row ${statusClass}">
+            <span>${prefix}${st.name}</span>
+            <span>${mins} min (${formatTimeWithSign(st.durationSec)})</span>
+          </li>
+        `;
+      }).join('');
+
+      lblProgress.textContent = `Etapa ${Math.min(currentStageIndex + 1, stages.length)} de ${stages.length}`;
+    }
+
+    function advanceToNextStage(manual = false) {
+      if (currentStageIndex < stages.length - 1) {
+        currentStageIndex++;
+        currentStageElapsedSec = 0;
+        playBeep(660, 'sine', 0.2);
+        updateDisplays();
+      } else {
+        // Última etapa
+        if (!chkAllowOvertime.checked && !manual) {
+          stopTimer();
+          btnPlayText.textContent = "Concluído";
+          playBeep(440, 'triangle', 0.5);
+        }
+        updateDisplays();
+      }
+    }
+
+    function tick() {
+      const now = Date.now();
+      const deltaSec = (now - lastTickTime) / 1000;
+      lastTickTime = now;
+
+      elapsedSec += deltaSec;
+      currentStageElapsedSec += deltaSec;
+
+      const currentStage = stages[currentStageIndex];
+      const stageRemaining = currentStage ? (currentStage.durationSec - currentStageElapsedSec) : 0;
+      const totalRemaining = totalTargetSec - elapsedSec;
+
+      // Disparo sonoro quando a etapa zera exatamente
+      if (stageRemaining <= 0 && stageRemaining + deltaSec > 0) {
+        playBeep(880, 'square', 0.3);
+      }
+
+      // Transição de fase
+      if (currentStage && currentStageElapsedSec >= currentStage.durationSec) {
+        if (chkAutoAdvance.checked && currentStageIndex < stages.length - 1) {
+          advanceToNextStage(false);
+        }
+      }
+
+      // Verificação de parada se overtime não estiver habilitado
+      if (!chkAllowOvertime.checked) {
+        if (totalRemaining <= 0) {
+          elapsedSec = totalTargetSec;
+          stopTimer();
+          btnPlayText.textContent = "Tempo Encerrado";
+          playBeep(440, 'sawtooth', 0.6);
+          updateDisplays();
+          return;
+        }
+      }
+
+      updateDisplays();
+    }
+
+    function startTimer() {
+      if (running) return;
+      lastTickTime = Date.now();
+      timerId = setInterval(tick, 100);
+      running = true;
+      btnPlayText.textContent = "Pausar";
+      btnPlayMaster.className = "st-btn st-btn-pause";
+      btnMiniPlay1.textContent = "⏸";
+      btnMiniPlay2.textContent = "⏸";
+    }
+
+    function stopTimer() {
+      if (!running) return;
+      clearInterval(timerId);
+      running = false;
+      btnPlayText.textContent = "Retomar";
+      btnPlayMaster.className = "st-btn st-btn-start";
+      btnMiniPlay1.textContent = "▶";
+      btnMiniPlay2.textContent = "▶";
+    }
+
+    function toggleTimer() {
+      if (running) stopTimer();
+      else startTimer();
+    }
+
+    function resetTimer() {
+      stopTimer();
+      btnPlayText.textContent = "Iniciar Contagem";
+      btnPlayMaster.className = "st-btn st-btn-start";
+      computeSchedule(false);
+    }
+
+    // Avançar fase manualmente
+    btnNextPhase.addEventListener("click", () => {
+      advanceToNextStage(true);
+    });
+
+    // Ajustes dinâmicos de +1 / -1 minuto na fase atual
+    btnAddMin.addEventListener("click", () => {
+      if (stages[currentStageIndex]) {
+        stages[currentStageIndex].durationSec += 60;
+        totalTargetSec += 60;
+        updateDisplays();
+      }
+    });
+
+    btnSubMin.addEventListener("click", () => {
+      if (stages[currentStageIndex] && stages[currentStageIndex].durationSec > 60) {
+        stages[currentStageIndex].durationSec -= 60;
+        totalTargetSec = Math.max(0, totalTargetSec - 60);
+        updateDisplays();
+      }
+    });
+
+    // Alternar visibilidade das configurações
+    btnToggleCfg.addEventListener("click", () => {
+      const isHidden = cfgPanel.style.display === "none";
+      cfgPanel.style.display = isHidden ? "grid" : "none";
+      btnToggleCfg.textContent = isHidden ? "Ocultar Opções" : "Expandir Opções";
+    });
+
+    // Eventos de Botões
+    btnPlayMaster.addEventListener("click", toggleTimer);
+    btnResetMaster.addEventListener("click", resetTimer);
+    btnMiniPlay1.addEventListener("click", toggleTimer);
+    btnMiniPlay2.addEventListener("click", toggleTimer);
+    btnMiniReset1.addEventListener("click", resetTimer);
+    btnMiniReset2.addEventListener("click", resetTimer);
+
+    // Eventos de Seleção de parâmetros
+    selBase.addEventListener("change", () => computeSchedule(false));
+    selIntro.addEventListener("change", () => computeSchedule(false));
+    selDev.addEventListener("change", () => computeSchedule(false));
+    selSoc.addEventListener("change", () => computeSchedule(false));
+    selEnem.addEventListener("change", () => computeSchedule(false));
+    chkAllowOvertime.addEventListener("change", updateDisplays);
+    chkAutoAdvance.addEventListener("change", updateDisplays);
+
+    // Inicialização
+    computeSchedule(false);
+  })();
+</script>
+</body>
+</html>
