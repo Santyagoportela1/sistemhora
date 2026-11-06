@@ -9,17 +9,63 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
+    /* VARIÁVEIS DE TEMA */
+    :root {
+      --bg-outer: #090d16;
+      --text-main: #f1f5f9;
+      --card-bg: #131b2e;
+      --card-border: #1e293b;
+      --header-bg: #182238;
+      --controls-bg: #0d1322;
+      --input-bg: #0f172a;
+      --input-border: #334155;
+      --text-muted: #94a3b8;
+      --display-bg: #030712;
+      --display-border: #1f2937;
+      --stage-bg: #0f172a;
+      --stage-border: #1e293b;
+      --stage-completed-bg: #090d16;
+      --stage-completed-border: #151d2a;
+      --toggle-btn-bg: #1e293b;
+      --toggle-btn-color: #38bdf8;
+      --toggle-btn-hover: #334155;
+      --shadow-color: rgba(0, 0, 0, 0.4);
+    }
+
+    [data-theme="light"] {
+      --bg-outer: #f1f5f9;
+      --text-main: #0f172a;
+      --card-bg: #ffffff;
+      --card-border: #cbd5e1;
+      --header-bg: #e2e8f0;
+      --controls-bg: #f8fafc;
+      --input-bg: #ffffff;
+      --input-border: #94a3b8;
+      --text-muted: #64748b;
+      --display-bg: #0f172a;
+      --display-border: #334155;
+      --stage-bg: #f8fafc;
+      --stage-border: #e2e8f0;
+      --stage-completed-bg: #f1f5f9;
+      --stage-completed-border: #cbd5e1;
+      --toggle-btn-bg: #e2e8f0;
+      --toggle-btn-color: #0284c7;
+      --toggle-btn-hover: #cbd5e1;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+    }
+
     .st-outer-wrapper {
       all: initial;
       display: block;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-      background-color: #090d16 !important;
-      color: #f1f5f9 !important;
+      background-color: var(--bg-outer) !important;
+      color: var(--text-main) !important;
       padding: 16px 12px !important;
       box-sizing: border-box !important;
       width: 100% !important;
       min-height: 100vh !important;
       line-height: 1.4 !important;
+      transition: background-color 0.3s ease, color 0.3s ease !important;
     }
 
     .st-outer-wrapper * {
@@ -37,19 +83,20 @@
 
     /* CARDS GENÉRICOS */
     .st-card {
-      background: #131b2e !important;
-      border: 1px solid #1e293b !important;
+      background: var(--card-bg) !important;
+      border: 1px solid var(--card-border) !important;
       border-radius: 12px !important;
       padding: 14px 16px !important;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+      box-shadow: 0 10px 25px -5px var(--shadow-color), 0 8px 10px -6px var(--shadow-color) !important;
       font-size: 13px !important;
+      transition: background-color 0.3s ease, border-color 0.3s ease !important;
     }
 
     .st-card-header {
       display: flex !important;
       align-items: center !important;
       justify-content: space-between !important;
-      border-bottom: 1px solid #1e293b !important;
+      border-bottom: 1px solid var(--card-border) !important;
       padding-bottom: 10px !important;
       margin-bottom: 12px !important;
       user-select: none !important;
@@ -66,16 +113,23 @@
       font-weight: 700 !important;
       letter-spacing: 0.5px !important;
       text-transform: uppercase !important;
-      color: #94a3b8 !important;
+      color: var(--text-muted) !important;
       display: flex !important;
       align-items: center !important;
       gap: 8px !important;
     }
 
+    /* BOTÕES DE TOGGLE & TEMA */
+    .st-header-actions {
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+    }
+
     .st-toggle-btn {
-      background: #1e293b !important;
-      border: 1px solid #334155 !important;
-      color: #38bdf8 !important;
+      background: var(--toggle-btn-bg) !important;
+      border: 1px solid var(--input-border) !important;
+      color: var(--toggle-btn-color) !important;
       font-size: 11px !important;
       font-weight: 600 !important;
       cursor: pointer !important;
@@ -87,8 +141,25 @@
       transition: all 0.2s ease !important;
     }
     .st-toggle-btn:hover {
-      background: #334155 !important;
-      color: #7dd3fc !important;
+      background: var(--toggle-btn-hover) !important;
+      filter: brightness(1.05) !important;
+    }
+
+    .st-theme-btn {
+      background: var(--toggle-btn-bg) !important;
+      border: 1px solid var(--input-border) !important;
+      color: var(--text-main) !important;
+      font-size: 12px !important;
+      cursor: pointer !important;
+      padding: 5px 8px !important;
+      border-radius: 6px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: all 0.2s ease !important;
+    }
+    .st-theme-btn:hover {
+      background: var(--toggle-btn-hover) !important;
     }
 
     /* STATUS DOT */
@@ -131,16 +202,16 @@
     .st-field label {
       font-size: 11px !important;
       font-weight: 600 !important;
-      color: #94a3b8 !important;
+      color: var(--text-muted) !important;
     }
 
     .st-field select {
       padding: 8px 10px !important;
-      border: 1px solid #334155 !important;
+      border: 1px solid var(--input-border) !important;
       border-radius: 8px !important;
-      background: #0f172a !important;
+      background: var(--input-bg) !important;
       font-size: 12px !important;
-      color: #f8fafc !important;
+      color: var(--text-main) !important;
       outline: none !important;
       cursor: pointer !important;
       transition: border-color 0.2s ease !important;
@@ -154,17 +225,17 @@
       align-items: center !important;
       gap: 10px !important;
       padding: 8px 10px !important;
-      background: #0f172a !important;
+      background: var(--input-bg) !important;
       border-radius: 8px !important;
-      border: 1px solid #1e293b !important;
+      border: 1px solid var(--card-border) !important;
       font-size: 11px !important;
       font-weight: 500 !important;
-      color: #cbd5e1 !important;
+      color: var(--text-main) !important;
       cursor: pointer !important;
       transition: background 0.2s ease !important;
     }
     .st-check-row:hover {
-      background: #182238 !important;
+      filter: brightness(1.05) !important;
     }
 
     .st-check-row input[type="checkbox"] {
@@ -182,7 +253,7 @@
       border: 1px solid rgba(56, 189, 248, 0.2) !important;
       border-radius: 8px !important;
       font-size: 11px !important;
-      color: #7dd3fc !important;
+      color: var(--toggle-btn-color) !important;
       line-height: 1.5 !important;
     }
 
@@ -228,11 +299,11 @@
     }
 
     .st-btn-start { background: linear-gradient(135deg, #059669, #10b981) !important; }
-    .st-btn-start:hover { background: linear-gradient(135deg, #047857, #059669) !important; filter: brightness(1.1) !important; }
+    .st-btn-start:hover { filter: brightness(1.1) !important; }
     .st-btn-pause { background: linear-gradient(135deg, #d97706, #f59e0b) !important; }
-    .st-btn-pause:hover { background: linear-gradient(135deg, #b45309, #d97706) !important; filter: brightness(1.1) !important; }
-    .st-btn-reset { background: #334155 !important; color: #cbd5e1 !important; }
-    .st-btn-reset:hover { background: #475569 !important; color: #fff !important; }
+    .st-btn-pause:hover { filter: brightness(1.1) !important; }
+    .st-btn-reset { background: var(--input-border) !important; color: var(--text-main) !important; }
+    .st-btn-reset:hover { filter: brightness(1.1) !important; }
     
     .st-btn-intro { background: #6d28d9 !important; }
     .st-btn-intro:hover { background: #5b21b6 !important; }
@@ -247,9 +318,9 @@
 
     /* JANELAS DOS DISPLAY DE TEMPO */
     .snap-window {
-      background: #0f172a !important;
-      border: 1px solid #1e293b !important;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
+      background: var(--card-bg) !important;
+      border: 1px solid var(--card-border) !important;
+      box-shadow: 0 8px 20px var(--shadow-color) !important;
       border-radius: 12px !important;
       overflow: hidden !important;
       transition: all 0.3s ease !important;
@@ -260,8 +331,8 @@
     }
 
     .snap-titlebar {
-      background: #182238 !important;
-      border-bottom: 1px solid #1e293b !important;
+      background: var(--header-bg) !important;
+      border-bottom: 1px solid var(--card-border) !important;
       padding: 6px 12px !important;
       display: flex !important;
       align-items: center !important;
@@ -278,7 +349,7 @@
       align-items: center !important;
       gap: 6px !important;
       font-size: 12px !important;
-      color: #e2e8f0 !important;
+      color: var(--text-main) !important;
       font-weight: 600 !important;
     }
 
@@ -311,10 +382,10 @@
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      background: #334155 !important;
+      background: var(--input-border) !important;
       border: none !important;
       border-radius: 50% !important;
-      color: #94a3b8 !important;
+      color: var(--text-muted) !important;
       cursor: pointer !important;
       padding: 0 !important;
       transition: all 0.2s ease !important;
@@ -323,14 +394,14 @@
     .snap-sys-btn.close:hover { background: #ef4444 !important; color: #fff !important; }
 
     .snap-controls-bar {
-      background: #0d1322 !important;
-      border-bottom: 1px solid #1e293b !important;
+      background: var(--controls-bg) !important;
+      border-bottom: 1px solid var(--card-border) !important;
       padding: 6px 12px !important;
       display: flex !important;
       align-items: center !important;
       justify-content: space-between !important;
       font-size: 12px !important;
-      color: #64748b !important;
+      color: var(--text-muted) !important;
     }
 
     .snap-minutes-group {
@@ -344,8 +415,8 @@
     .snap-input-box {
       width: 42px !important;
       height: 22px !important;
-      background: #182238 !important;
-      border: 1px solid #334155 !important;
+      background: var(--header-bg) !important;
+      border: 1px solid var(--input-border) !important;
       border-radius: 4px !important;
       text-align: center !important;
       font-family: 'JetBrains Mono', monospace !important;
@@ -365,14 +436,14 @@
       width: 24px !important;
       height: 24px !important;
       border-radius: 6px !important;
-      border: 1px solid #334155 !important;
-      background: #1e293b !important;
+      border: 1px solid var(--input-border) !important;
+      background: var(--card-bg) !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
       font-size: 10px !important;
       cursor: pointer !important;
-      color: #f1f5f9 !important;
+      color: var(--text-main) !important;
       transition: all 0.15s ease !important;
       padding: 0 !important;
     }
@@ -391,8 +462,8 @@
       border-radius: 8px !important;
       user-select: none !important;
       transition: all 0.2s ease !important;
-      background: #030712 !important;
-      border: 1px solid #1f2937 !important;
+      background: var(--display-bg) !important;
+      border: 1px solid var(--display-border) !important;
     }
 
     .display-yellow {
@@ -417,11 +488,11 @@
 
     /* CARD DE ETAPAS */
     .st-stage-card {
-      background: #131b2e !important;
-      border: 1px solid #1e293b !important;
+      background: var(--card-bg) !important;
+      border: 1px solid var(--card-border) !important;
       border-radius: 12px !important;
       padding: 12px 14px !important;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
+      box-shadow: 0 8px 20px var(--shadow-color) !important;
       font-size: 12px !important;
     }
 
@@ -430,7 +501,7 @@
       font-weight: 700 !important;
       letter-spacing: 0.5px !important;
       text-transform: uppercase !important;
-      color: #64748b !important;
+      color: var(--text-muted) !important;
       display: flex !important;
       justify-content: space-between !important;
       align-items: center !important;
@@ -438,7 +509,7 @@
     }
     .st-stage-header.has-bottom-margin {
       margin-bottom: 10px !important;
-      border-bottom: 1px solid #1e293b !important;
+      border-bottom: 1px solid var(--card-border) !important;
       padding-bottom: 8px !important;
     }
 
@@ -457,10 +528,10 @@
       align-items: center !important;
       padding: 7px 10px !important;
       border-radius: 8px !important;
-      background: #0f172a !important;
-      border: 1px solid #1e293b !important;
+      background: var(--stage-bg) !important;
+      border: 1px solid var(--stage-border) !important;
       font-size: 12px !important;
-      color: #94a3b8 !important;
+      color: var(--text-muted) !important;
       transition: all 0.2s ease !important;
     }
 
@@ -472,9 +543,10 @@
     }
 
     .st-stage-row.completed {
-      background: #090d16 !important;
-      border-color: #151d2a !important;
-      color: #475569 !important;
+      background: var(--stage-completed-bg) !important;
+      border-color: var(--stage-completed-border) !important;
+      color: var(--text-muted) !important;
+      opacity: 0.7 !important;
       text-decoration: line-through !important;
     }
 
@@ -516,7 +588,7 @@
   </style>
 </head>
 <body>
-<div class="st-outer-wrapper">
+<div class="st-outer-wrapper" id="outerWrapper">
   <div class="st-container">
 
     <!-- PAINEL SUPERIOR: CONFIGURAÇÕES E CONTROLES GERAIS -->
@@ -526,10 +598,15 @@
           <span class="st-status-dot" id="mainStatusDot"></span>
           <span>Painel de Gravação</span>
         </div>
-        <button type="button" id="btnToggleCfg" class="st-toggle-btn" title="Alternar visibilidade das configurações">
-          <span id="txtToggleCfg">Ocultar Opções</span>
-          <span id="icoToggleCfg">▲</span>
-        </button>
+        <div class="st-header-actions">
+          <button type="button" id="btnThemeToggle" class="st-theme-btn" title="Alternar entre Tema Claro e Escuro">
+            <span id="icoTheme">☀️</span>
+          </button>
+          <button type="button" id="btnToggleCfg" class="st-toggle-btn" title="Alternar visibilidade das configurações">
+            <span id="txtToggleCfg">Ocultar Opções</span>
+            <span id="icoToggleCfg">▲</span>
+          </button>
+        </div>
       </div>
 
       <!-- SEÇÃO RECOLHÍVEL DAS CONFIGURAÇÕES -->
@@ -793,6 +870,10 @@
     }
 
     // Elementos do DOM
+    const outerWrapper = document.getElementById("outerWrapper");
+    const btnThemeToggle = document.getElementById("btnThemeToggle");
+    const icoTheme = document.getElementById("icoTheme");
+
     const selSessionPlan = document.getElementById("selSessionPlan");
     const selIntroDuration = document.getElementById("selIntroDuration");
     const selIntroMode = document.getElementById("selIntroMode");
@@ -848,6 +929,33 @@
     const stagesList = document.getElementById("stagesList");
     const tagOvertimePhase = document.getElementById("tagOvertimePhase");
     const tagOvertimeTotal = document.getElementById("tagOvertimeTotal");
+
+    // GERENCIAMENTO DE TEMA
+    function setTheme(theme) {
+      if (theme === 'light') {
+        outerWrapper.setAttribute('data-theme', 'light');
+        icoTheme.textContent = '🌙';
+        localStorage.setItem('snaptimer_theme', 'light');
+      } else {
+        outerWrapper.removeAttribute('data-theme');
+        icoTheme.textContent = '☀️';
+        localStorage.setItem('snaptimer_theme', 'dark');
+      }
+    }
+
+    function toggleTheme() {
+      const currentTheme = outerWrapper.getAttribute('data-theme');
+      if (currentTheme === 'light') {
+        setTheme('dark');
+      } else {
+        setTheme('light');
+      }
+    }
+
+    // Carregar tema salvo
+    const savedTheme = localStorage.getItem('snaptimer_theme') || 'dark';
+    setTheme(savedTheme);
+    btnThemeToggle.addEventListener('click', toggleTheme);
 
     function formatTimeWithSign(seconds) {
       const isNeg = seconds < 0;
@@ -931,7 +1039,7 @@
         });
       }
 
-      // 5. Socialização (recebe +3m se não houver Minuto ENEM)
+      // 5. Socialização
       calculatedStages.push({
         id: 'soc',
         name: hasEnem ? "Socialização" : "Socialização (+3m ENEM)",
@@ -1046,7 +1154,6 @@
     }
 
     function updateDisplays() {
-      // 1. Cronômetro B (Gravação Total da Sessão - Vermelho)
       const remainingTotalSec = totalTargetSec - elapsedSec;
       const isTotalOvertime = remainingTotalSec < 0;
 
@@ -1067,7 +1174,6 @@
         mainStatusDot.className = "st-status-dot";
       }
 
-      // 2. Cronômetro A (Fase Atual - Amarelo)
       const stage = stages[currentStageIndex];
       if (stage) {
         const remainingStageSec = stage.allocatedSec - stage.elapsedSec;
@@ -1295,6 +1401,7 @@
 
     // Eventos de Botões
     btnPlayMaster.addEventListener("click", toggleTimer);
+    btnResetMaster.addEventListener("click5" in window ? "" : "click", resetTimer);
     btnResetMaster.addEventListener("click", resetTimer);
     btnMiniPlay1.addEventListener("click", toggleTimer);
     btnMiniPlay2.addEventListener("click", toggleTimer);
@@ -1330,6 +1437,7 @@
     selDev.addEventListener("change", () => buildInitialSchedule(false));
     selQuest.addEventListener("change", () => buildInitialSchedule(false));
     selSoc.addEventListener("change", () => buildInitialSchedule(false));
+    selEnem.addEventListener("change", () => buildInitialScoreIfNeeded ? null : buildInitialSchedule(false));
     selEnem.addEventListener("change", () => buildInitialSchedule(false));
     selCutStrategy.addEventListener("change", updateDisplays);
     chkAllowOvertime.addEventListener("change", updateDisplays);
